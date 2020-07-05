@@ -24,14 +24,17 @@ body, html {
 </head>
 <body>
 
-<div class="bg">
-  <div>
-    {% block content %}{% endblock %}
+  <div class="bg">
+    <div>
+      {% block content %}{% endblock %}
+    </div>
+    <div>
+      {% block k_value %}{% endblock %}
+    </div>
+    <div>
+      {% block summary %}{% endblock %}
+    </div>
   </div>
-  <div>
-    {% block k_value %}{% endblock %}
-  </div>
-</div>
 
 
 </body>

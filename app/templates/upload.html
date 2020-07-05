@@ -8,8 +8,15 @@
     </form>
 {% endblock %}
 {% block k_value %}
-<form method=post enctype=multipart/form-data>
+<form action = /run method=post enctype=multipart/form-data>
     <input type=number id=k_value name=k_value min=1 max=20>
-    <input type=submit value=Run>
+    <input type=submit value=Running>
+</form>
+{% endblock %}
+
+{% block summary %}
+<form action = /run/summary method=post enctype=multipart/form-data>
+
+    <input type=submit value=Summaries>
 </form>
 {% endblock %}
