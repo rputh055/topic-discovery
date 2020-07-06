@@ -13,6 +13,8 @@ import io
 from flask import send_file
 from transformers import T5Tokenizer, T5ForConditionalGeneration, T5Config
 import torch
+from sklearn import metrics
+from scipy.spatial.distance import cdist
 import json
 
 
@@ -50,6 +52,22 @@ class Clustering(object):
         model = SentenceTransformer('bert-base-nli-mean-tokens')
         self.tweet_embeddings = model.encode(list_of_tweets)
         return self.tweet_embeddings
+
+    def elbow(self):
+        distortions = []
+        K = range(1,10)
+        for k in K:
+            kmeanModel = KMeans(n_clusters=k)
+            kmeanModel.fit(self.tweet_embeddings)
+            distortions.append(sum(np.min(cdist(self.tweet_embeddings, kmeanModel.cluster_centers_, 'euclidean'), axis=1)) / self.tweet_embeddings[1].shape[0])
+
+        plt.plot(K, distortions, 'bx-')
+        plt.xlabel('k')
+        plt.ylabel('Distortion')
+        plt.title('The Elbow Method showing the optimal k')
+        #plt.style.use('dark_background')
+        plt.savefig(self.path +'/plot')
+
 
     def cluster(self, k):
         k_means = KMeans(n_clusters = k)
@@ -93,7 +111,7 @@ class Clustering(object):
 
 
 
-    def zip_file(self, pattern, name):
+    def zip_file(self, pattern):
         if os.path.isdir(self.path):      #making zip file for the obtained clusters
             tweets_file = io.BytesIO()
             with zipfile.ZipFile(tweets_file, 'w', zipfile.ZIP_DEFLATED) as my_zip:
@@ -102,4 +120,12 @@ class Clustering(object):
                         if re.search(pattern, file):
                             my_zip.write(os.path.join(root, file))
             tweets_file.seek(0)
-        return send_file(tweets_file, mimetype='application/zip', as_attachment=True, attachment_filename=name+".zip")
+            return tweets_file
+        #return send_file(tweets_file, mimetype='application/zip', as_attachment=True, attachment_filename=name+".zip")
+
+
+    def remove_files(self):
+        for root, dirs, files in os.walk(self.path):
+            files_list = [file for file in files if file.endswith('.csv') or file.endswith('.txt')]
+            for file in files_list:
+                os.remove(os.path.join(self.path, file))

@@ -3,10 +3,8 @@ import os
 from flask import render_template, request, redirect, url_for, send_file, flash
 from werkzeug.utils import secure_filename
 import csv
-import io
-import zipfile
 from app.model import Clustering
-import re
+
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 
@@ -46,38 +44,27 @@ def browse_file():
             return "success"
     return render_template('upload.html')
 
+
+@app.route("/getimage")
+def get_img():
+    cluster_obj.elbow()
+    return "plot.png"
+
+
 @app.route('/run', methods = ['GET', 'POST'])
 def zip_cluster():
     if request.method == 'POST':
         k = int(request.form['k_value'])
         temp_k.append(k)
         cluster_obj.cluster(k)
-        #cluster_obj.zip_file("r'cluster[0-9]'", 'clusters')
-        if os.path.isdir(UPLOAD_FOLDER):      #making zip file for the obtained clusters
-            tweets_file = io.BytesIO()
-            with zipfile.ZipFile(tweets_file, 'w', zipfile.ZIP_DEFLATED) as my_zip:
-                for root, dirs, files in os.walk(UPLOAD_FOLDER):
-                    #for file in UPLOAD_FOLDER:
-
-                    for file in files:
-                        if re.search(r'cluster[0-9]+', file):
-                            my_zip.write(os.path.join(root, file))
-            tweets_file.seek(0)
+        tweets_file = cluster_obj.zip_file(pattern=r'cluster[0-9]+')
     return send_file(tweets_file, mimetype='application/zip', as_attachment=True, attachment_filename="cluster.zip")
 
 
 @app.route('/run/summary', methods = ['GET', 'POST'])
 def zip_summary():
     if request.method == 'POST':
-
         cluster_obj.summaries(temp_k[0])
-
-        if os.path.isdir(UPLOAD_FOLDER):      #making zip file for the obtained clusters
-            tweets_file = io.BytesIO()
-            with zipfile.ZipFile(tweets_file, 'w', zipfile.ZIP_DEFLATED) as my_zip:
-                for root, dirs, files in os.walk(UPLOAD_FOLDER):
-                    for file in files:
-                        if re.search(r'summary[0-9]+', file):
-                            my_zip.write(os.path.join(root, file))
-            tweets_file.seek(0)
+        tweets_file = cluster_obj.zip_file(pattern=r'summary[0-9]+')
+        cluster_obj.remove_files()
     return send_file(tweets_file, mimetype='application/zip', as_attachment=True, attachment_filename="summary.zip")

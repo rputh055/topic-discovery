@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+
 {% block content %}
     <title>Upload new File</title>
     <h1>Upload new File</h1>
@@ -14,9 +15,16 @@
 </form>
 {% endblock %}
 
+{% block elbow %}
+<form action = "" method=post enctype=multipart/form-data>
+<input type=submit id ='retrieve'>Elbow>
+<img src="" id="myimg" />
+
+{% endblock %}
+
+
 {% block summary %}
 <form action = /run/summary method=post enctype=multipart/form-data>
-
     <input type=submit value=Summaries>
 </form>
 {% endblock %}
