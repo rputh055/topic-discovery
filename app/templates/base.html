@@ -3,8 +3,8 @@
 <head>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
 <style>
 body, html {
 
@@ -14,6 +14,7 @@ body, html {
 
 .bg {
   /* The image used */
+
   background-image: url("/static/back_ground.jpeg");
 
   /* Full height */
@@ -22,16 +23,34 @@ body, html {
   /* Center and scale the image nicely */
   background-position: center;
   background-repeat: no-repeat;
-  background-size: cover;
+  /*background-size: cover;*/
+  background-attachment: fixed;
 }
 </style>
 </head>
+
 <body>
 
   <div class="bg">
     <div>
       {% block content %}{% endblock %}
     </div>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-primary alert-dismissible fade show" role="alert">
+                    <span>{{ message }}</span>
+                    <button type="button" class="close" onclick=delete_flash(this) data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+
+
     <div>
       {% block k_value %}{% endblock %}
     </div>
@@ -45,14 +64,31 @@ body, html {
 
 
 </body>
-<script>
+
+
+<script>  //Script to delete flash messages
+    function delete_flash(flash){
+        $(flash).parent().remove()
+    }
+</script>
+
+<script>  //script to disable Running button
+  function enable_btn(){
+    const disableButton = true; //change this value to false and the button will be clickable
+    const button = document.getElementById('Running');
+    button.disabled = false;
+  }
+</script>
+
+<script>  //script to get the plot from static folder
   $(document).ready(function() {
-     $('#retrieve').submit(function(){
+     $('#retrieve').click(function(){
          $.ajax({
          url: "{{ url_for ('get_img') }}",
          type: "GET",
          success: function(response) {
              $("#myimg").attr('src', '/static/' + response);
+             $("#myimg").toggle('fast')
         },
         error: function(xhr) {
           //Do Something to handle error
@@ -61,4 +97,5 @@ body, html {
      });
   });
 </script>
+
 </html>
