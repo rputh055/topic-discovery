@@ -55,11 +55,13 @@ class Clustering(object):
     def elbow(self):
         distortions = []
         K = range(1,10)
+        #if size(self.tweet_embeddings) = (-1,1):
+
         for k in K:
             kmeanModel = KMeans(n_clusters=k)
             kmeanModel.fit(self.tweet_embeddings)
             distortions.append(sum(np.min(cdist(self.tweet_embeddings, kmeanModel.cluster_centers_, 'euclidean'), axis=1)) / self.tweet_embeddings[1].shape[0])
-
+        plt.figure(figsize=(4,4))
         plt.plot(K, distortions, 'bx-')
         plt.xlabel('k')
         plt.ylabel('Distortion')
@@ -67,6 +69,7 @@ class Clustering(object):
         plt.savefig(self.path +'/plot')
 
     def cluster(self, k):
+        print(np.shape(self.tweet_embeddings))
         k_means = KMeans(n_clusters = k)
         k_means.fit(self.tweet_embeddings)
         k_pred = k_means.predict(self.tweet_embeddings)
@@ -75,6 +78,7 @@ class Clustering(object):
             df = cluster_df[cluster_df['cluster'] == i]
             df.drop(columns = ['cluster'], inplace = True)
             df.to_csv(self.path+"/cluster"+str(i)+".txt")
+
 
     def summaries(self, k):
         for i in range(k):

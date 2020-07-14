@@ -61,7 +61,6 @@ def zip_cluster():
     if request.method == 'POST':
         try:
             k = int(request.form['k_value'])
-
         except ValueError:
             flash("Enter K value")
             return redirect(request.url)
@@ -80,14 +79,13 @@ def zip_summary():
         try:
             temp_k[0]
             cluster_obj.summaries(temp_k[0])
-        except IndexError:
+        except (IndexError, FileNotFoundError):
             flash("give K value and then press Summary")
             return redirect(request.url)
-        except FileNotFoundError:
+            """except FileNotFoundError:
             flash("Upload the file first")
-            return redirect(request.url)
+            return redirect(request.url)"""
         else:
-
             tweets_file = cluster_obj.zip_file(pattern=r'summary[0-9]+')
             cluster_obj.remove_files()
             return send_file(tweets_file, mimetype='application/zip', as_attachment=True, attachment_filename="summary.zip")
